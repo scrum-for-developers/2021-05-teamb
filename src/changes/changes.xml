@@ -32,6 +32,9 @@
       <action dev="Jonas Gröger" type="add">
         Add Dependabot to automatically check dependency updates in the future.
       </action>
+      <action dev="Mathias Manz" type="update">
+        Provide nicer error messages when adding books.
+      </action>
     </release>
   </body>
 </document>
