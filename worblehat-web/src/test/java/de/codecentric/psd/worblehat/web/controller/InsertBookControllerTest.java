@@ -10,6 +10,7 @@ import de.codecentric.psd.worblehat.domain.BookService;
 import de.codecentric.psd.worblehat.web.formdata.BookDataFormData;
 import java.util.HashMap;
 import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ModelMap;
@@ -53,6 +54,20 @@ class InsertBookControllerTest {
     String navigateTo = insertBookController.processSubmit(bookDataFormData, bindingResult);
 
     assertThat(navigateTo, is("insertBooks"));
+  }
+
+  @Test
+  void shouldThrowNumberFormatExceptionInvalidPublication() {
+    setupFormData();
+    bookDataFormData.setYearOfPublication("foo");
+    when(bookService.createBook(any(), any(), any(), any(), anyInt()))
+        .thenReturn(Optional.of(TEST_BOOK));
+
+    Assertions.assertThrows(
+        NumberFormatException.class,
+        () -> {
+          insertBookController.processSubmit(bookDataFormData, bindingResult);
+        });
   }
 
   @Test
