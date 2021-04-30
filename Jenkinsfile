@@ -65,8 +65,8 @@ pipeline {
     }
 
 //    FIXME - Long running processes could be run in parallel
-//    stage('LONG RUNNING') {
-//        parallel {
+   stage('LONG RUNNING') {
+       parallel {
 
             stage('REPORTING') {
               when {
@@ -110,8 +110,8 @@ pipeline {
                 }
             }
 
-//        }
-//    }
+       }
+   }
 
     stage('DEPLOY DEV') {
         when {
