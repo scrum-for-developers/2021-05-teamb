@@ -13,7 +13,7 @@ import de.codecentric.psd.worblehat.domain.Borrowing;
 import de.codecentric.psd.worblehat.web.formdata.BookBorrowFormData;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -91,11 +91,11 @@ class BorrowBookControllerTest {
     bookBorrowFormData.setIsbn(TEST_BOOK.getIsbn());
     when(bookService.findBooksByIsbn(TEST_BOOK.getIsbn()))
         .thenReturn(Collections.singleton(TEST_BOOK));
-    when(bookService.borrowBook(any(), any()))
-        .thenReturn(Optional.of(new Borrowing(TEST_BOOK, BORROWER_EMAIL)));
+    when(bookService.borrowBooks(any(), any()))
+        .thenReturn(Set.of(new Borrowing(TEST_BOOK, BORROWER_EMAIL)));
 
     String navigateTo = borrowBookController.processSubmit(bookBorrowFormData, bindingResult);
-    verify(bookService).borrowBook(TEST_BOOK.getIsbn(), BORROWER_EMAIL);
+    verify(bookService).borrowBooks(Set.of(TEST_BOOK.getIsbn()), BORROWER_EMAIL);
     assertThat(navigateTo, is("home"));
   }
 

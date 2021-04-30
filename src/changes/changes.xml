@@ -36,5 +36,11 @@
         Provide nicer error messages when adding books.
       </action>
     </release>
+    <release version="1.2" date="2021-04-30"
+             description="Worblehat: Blogging Beaver">
+      <action dev="Jonas Gröger" type="add">
+        Allow borrowing multiple books.
+      </action>
+    </release>
   </body>
 </document>
