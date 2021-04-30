@@ -3,6 +3,7 @@ package de.codecentric.psd.worblehat.domain;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,6 +12,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,9 +22,11 @@ import org.mockito.Mock;
 
 class StandardBookServiceTest {
 
-  @Mock private BorrowingRepository borrowingRepository;
+  @Mock
+  private BorrowingRepository borrowingRepository;
 
-  @Mock private BookRepository bookRepository;
+  @Mock
+  private BookRepository bookRepository;
 
   private BookService bookService;
 
@@ -53,7 +59,7 @@ class StandardBookServiceTest {
     anotherBorrowedBook.borrowNowByBorrower(BORROWER_EMAIL);
 
     when(borrowingRepository.findBorrowingsByBorrower(BORROWER_EMAIL))
-        .thenReturn(Arrays.asList(aBorrowing, anotherBorrowing));
+      .thenReturn(Arrays.asList(aBorrowing, anotherBorrowing));
 
     when(borrowingRepository.findBorrowingForBook(aBook)).thenReturn(null);
 
@@ -71,7 +77,7 @@ class StandardBookServiceTest {
     for (Map.Entry<String, Set<Book>> entry : bookCopies.entrySet()) {
       when(bookRepository.findByIsbn(entry.getKey())).thenReturn(entry.getValue());
       when(bookRepository.findTopByIsbn(entry.getKey()))
-          .thenReturn(Optional.of(entry.getValue().iterator().next()));
+        .thenReturn(Optional.of(entry.getValue().iterator().next()));
     }
   }
 
@@ -88,7 +94,7 @@ class StandardBookServiceTest {
     bookService.borrowBook(aBook.getIsbn(), BORROWER_EMAIL);
     verify(borrowingRepository).save(borrowingArgumentCaptor.capture());
     assertThat(
-        borrowingArgumentCaptor.getValue().getBorrowerEmailAddress(), equalTo(BORROWER_EMAIL));
+      borrowingArgumentCaptor.getValue().getBorrowerEmailAddress(), equalTo(BORROWER_EMAIL));
   }
 
   @Test()
@@ -106,8 +112,8 @@ class StandardBookServiceTest {
     verify(borrowingRepository).save(borrowingArgumentCaptor.capture());
     assertThat(borrowingArgumentCaptor.getValue().getBorrowerEmailAddress(), is(BORROWER_EMAIL));
     assertThat(
-        borrowingArgumentCaptor.getValue().getBorrowedBook(),
-        either(is(aBook)).or(is(aCopyofBook)));
+      borrowingArgumentCaptor.getValue().getBorrowedBook(),
+      either(is(aBook)).or(is(aCopyofBook)));
   }
 
   @Test
@@ -133,11 +139,11 @@ class StandardBookServiceTest {
   void shouldCreateBook() {
     when(bookRepository.save(any(Book.class))).thenReturn(aBook);
     bookService.createBook(
-        aBook.getTitle(),
-        aBook.getAuthor(),
-        aBook.getEdition(),
-        aBook.getIsbn(),
-        aBook.getYearOfPublication());
+      aBook.getTitle(),
+      aBook.getAuthor(),
+      aBook.getEdition(),
+      aBook.getIsbn(),
+      aBook.getYearOfPublication());
 
     // assert that book was saved to repository
     ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
@@ -149,18 +155,18 @@ class StandardBookServiceTest {
     assertThat(bookArgumentCaptor.getValue().getEdition(), is(aBook.getEdition()));
     assertThat(bookArgumentCaptor.getValue().getIsbn(), is(aBook.getIsbn()));
     assertThat(
-        bookArgumentCaptor.getValue().getYearOfPublication(), is(aBook.getYearOfPublication()));
+      bookArgumentCaptor.getValue().getYearOfPublication(), is(aBook.getYearOfPublication()));
   }
 
   @Test
   void shouldCreateAnotherCopyOfExistingBook() {
     when(bookRepository.save(any(Book.class))).thenReturn(aBook);
     bookService.createBook(
-        aBook.getTitle(),
-        aBook.getAuthor(),
-        aBook.getEdition(),
-        aBook.getIsbn(),
-        aBook.getYearOfPublication());
+      aBook.getTitle(),
+      aBook.getAuthor(),
+      aBook.getEdition(),
+      aBook.getIsbn(),
+      aBook.getYearOfPublication());
     verify(bookRepository, times(1)).save(any(Book.class));
   }
 
@@ -168,11 +174,11 @@ class StandardBookServiceTest {
   void shouldNotCreateAnotherCopyOfExistingBookWithDifferentTitle() {
     givenALibraryWith(aBook);
     bookService.createBook(
-        aBook.getTitle() + "X",
-        aBook.getAuthor(),
-        aBook.getEdition(),
-        aBook.getIsbn(),
-        aBook.getYearOfPublication());
+      aBook.getTitle() + "X",
+      aBook.getAuthor(),
+      aBook.getEdition(),
+      aBook.getIsbn(),
+      aBook.getYearOfPublication());
     verify(bookRepository, times(0)).save(any(Book.class));
   }
 
@@ -180,11 +186,11 @@ class StandardBookServiceTest {
   void shouldNotCreateAnotherCopyOfExistingBookWithDifferentAuthor() {
     givenALibraryWith(aBook);
     bookService.createBook(
-        aBook.getTitle(),
-        aBook.getAuthor() + "X",
-        aBook.getEdition(),
-        aBook.getIsbn(),
-        aBook.getYearOfPublication());
+      aBook.getTitle(),
+      aBook.getAuthor() + "X",
+      aBook.getEdition(),
+      aBook.getIsbn(),
+      aBook.getYearOfPublication());
     verify(bookRepository, times(0)).save(any(Book.class));
   }
 
@@ -229,5 +235,46 @@ class StandardBookServiceTest {
   void shouldSaveUpdatedBookToRepo() {
     bookService.updateBook(aBook);
     verify(bookRepository).save(aBook);
+  }
+
+  @Test
+  void shouldReturnNoBorrowingsWhenNoIbansProvided() {
+    Set<Borrowing> borrowings = bookService.borrowBooks(Set.of(), "");
+
+    assertThat(borrowings, emptyIterable());
+  }
+
+  @Test
+  void shouldReturnOneBorrowingWhenOneIbanProvided() {
+    when(bookRepository.findByIsbn("1231231231")).thenReturn(Set.of(aBook));
+
+    Set<Borrowing> borrowings = bookService.borrowBooks(Set.of("1231231231"), "");
+
+    assertThat(borrowings, hasItem(CoreMatchers.isA(Borrowing.class)));
+    assertThat(borrowings, Matchers.hasSize(1));
+  }
+
+  @Test
+  void shouldReturnTwoBorrowingsWhenTwoIbansProvided() {
+    when(bookRepository.findByIsbn("1231231231")).thenReturn(Set.of(aBook));
+    when(bookRepository.findByIsbn("1231231232")).thenReturn(Set.of(anotherBook));
+
+    Set<Borrowing> borrowings = bookService.borrowBooks(Set.of("1231231231", "1231231232"), "");
+
+    assertThat(borrowings, Matchers.hasItem(CoreMatchers.isA(Borrowing.class)));
+    assertThat(borrowings, Matchers.hasSize(2));
+  }
+
+  @Test
+  void shouldReturnOneBorrowingsWhenTwoIbansProvidedButOneIsBorrowed() {
+    when(bookRepository.findByIsbn("1231231231")).thenReturn(Set.of(aBook));
+    when(bookRepository.findByIsbn("1231231232")).thenReturn(Set.of(aBorrowedBook));
+
+    Set<Borrowing> borrowings = bookService.borrowBooks(Set.of("1231231231", "1231231232"), "");
+
+    Borrowing borrowing1 = borrowings.stream().findFirst().get();
+
+    assertThat(borrowing1.getBorrowedBook(), is(aBook));
+    assertThat(borrowings, Matchers.hasSize(1));
   }
 }
