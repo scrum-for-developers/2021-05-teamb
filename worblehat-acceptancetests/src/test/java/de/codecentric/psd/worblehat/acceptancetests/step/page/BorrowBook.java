@@ -30,14 +30,10 @@ public class BorrowBook {
 
   @When("{string} borrows the book(s) {string}")
   public void whenUseruserBorrowsTheBookisbn(String user, String isbns) {
-    doWithEach(
-        isbns,
-        (isbn) -> {
-          seleniumAdapter.gotoPage(Page.BORROWBOOK);
-          seleniumAdapter.typeIntoField("email", user);
-          seleniumAdapter.typeIntoField("isbn", isbn);
-          seleniumAdapter.clickOnPageElement(PageElement.BORROWBOOKBUTTON);
-        });
+    seleniumAdapter.gotoPage(Page.BORROWBOOK);
+    seleniumAdapter.typeIntoField("email", user);
+    seleniumAdapter.typeIntoField("isbn", isbns);
+    seleniumAdapter.clickOnPageElement(PageElement.BORROWBOOKBUTTON);
   }
 
   // *****************

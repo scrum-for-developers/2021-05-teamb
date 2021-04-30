@@ -18,6 +18,8 @@ public interface BookService {
 
   Optional<Borrowing> borrowBook(String isbn, String borrower);
 
+  Set<Borrowing> borrowBooks(Set<String> isbns, String borrower);
+
   void returnAllBooksByBorrower(String string);
 
   List<Book> findAllBooks();
