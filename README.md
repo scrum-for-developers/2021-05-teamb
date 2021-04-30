@@ -18,7 +18,7 @@ Maven comes bundled with the maven wrapper scripts, no need for manual installat
 1. Run the application.:
   * Either run `./mvnw -pl worblehat-web spring-boot:run` (will automatically compile & package the application before)
   * Or use your IDE to start the main class in worblehat-web: `de.codecentric.psd.Worblehat`
-1. Access the application at <http://localhost:8080/worblehat/>
+1. Access the application at [localhost:8080/worblehat](http://localhost:8080/worblehat/)
 
 ## Running tests
 

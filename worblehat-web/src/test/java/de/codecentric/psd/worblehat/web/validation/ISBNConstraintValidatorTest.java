@@ -1,8 +1,6 @@
 package de.codecentric.psd.worblehat.web.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import javax.validation.ConstraintValidatorContext;
@@ -16,7 +14,7 @@ class ISBNConstraintValidatorTest {
   private ConstraintValidatorContext constraintValidatorContext;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     isbnConstraintValidator = new ISBNConstraintValidator();
     constraintValidatorContext = mock(ConstraintValidatorContext.class);
   }
@@ -28,20 +26,54 @@ class ISBNConstraintValidatorTest {
   }
 
   @Test
-  void shouldReturnTrueIfBlank() throws Exception {
+  void shouldReturnTrueIfBlank() {
     boolean actual = isbnConstraintValidator.isValid("", constraintValidatorContext);
     assertTrue(actual);
   }
 
   @Test
-  void shouldReturnTrueIfValidISBN() throws Exception {
+  void shouldReturnTrueIfValidISBN() {
     boolean actual = isbnConstraintValidator.isValid("0132350882", constraintValidatorContext);
     assertTrue(actual);
   }
 
   @Test
-  void shouldReturnFalseIfInvalidISBN() throws Exception {
+  void shouldReturnFalseIfInvalidISBN() {
     boolean actual = isbnConstraintValidator.isValid("0123459789", constraintValidatorContext);
+    assertFalse(actual);
+  }
+
+  @Test
+  void shouldReturnFalseIfInValidISBN13() {
+    boolean actual = isbnConstraintValidator.isValid("0123459789876", constraintValidatorContext);
+    assertFalse(actual);
+  }
+
+  @Test
+  void shouldReturnTrueIfValidISBN13() {
+    boolean actual = isbnConstraintValidator.isValid("9783551557452", constraintValidatorContext);
+    assertTrue(actual);
+  }
+
+  @Test
+  void shouldReturnTrueIfValidISBN10andISBN13() {
+    boolean actual =
+        isbnConstraintValidator.isValid("0132350882,9783551557452", constraintValidatorContext);
+    assertTrue(actual);
+  }
+
+  @Test
+  void shouldReturnTrueIfValidISBN13s() {
+    boolean actual =
+        isbnConstraintValidator.isValid("9783551557452,9781234567897", constraintValidatorContext);
+    assertTrue(actual);
+  }
+
+  @Test
+  void shouldReturnFalseIfPartiallyValidIBANsOnly() {
+    String invalidIBAN13 = "0123459789876";
+    boolean actual =
+        isbnConstraintValidator.isValid("0132350882," + invalidIBAN13, constraintValidatorContext);
     assertFalse(actual);
   }
 }
