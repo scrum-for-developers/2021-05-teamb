@@ -7,7 +7,8 @@
 <h1>Borrow Book</h1>
 
 <form th:object="${borrowFormData}" method="POST">
-  ISBN:<input id="isbn" type="text" th:field="*{isbn}"/>
+
+  ISBNs:<textarea id="isbn" rows="3" cols="25" th:field="*{isbn}" placeholder="1111111111,2222222222,..."></textarea>
   <span id="isbn.error" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
   <br/>
   Email:<input id="email" type="text" th:field="*{email}"/>

@@ -4,8 +4,10 @@ import de.codecentric.psd.worblehat.domain.Book;
 import de.codecentric.psd.worblehat.domain.BookService;
 import de.codecentric.psd.worblehat.domain.Borrowing;
 import de.codecentric.psd.worblehat.web.formdata.BookBorrowFormData;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,21 +43,31 @@ public class BorrowBookController {
     if (result.hasErrors()) {
       return BORROW;
     }
-    Set<Book> books = bookService.findBooksByIsbn(borrowFormData.getIsbn());
-    if (books.isEmpty()) {
+
+    if (borrowFormData.getIsbn() == null) {
       result.rejectValue("isbn", "noBookExists");
       return BORROW;
     }
-    Optional<Borrowing> borrowing =
-        bookService.borrowBook(borrowFormData.getIsbn(), borrowFormData.getEmail());
+    final Set<String> allIsbns =
+        Arrays.stream(borrowFormData.getIsbn().split(","))
+            .map(String::trim)
+            .collect(Collectors.toSet());
 
-    return borrowing
-        .map(b -> "home")
-        .orElseGet(
-            () -> {
-              result.rejectValue("isbn", "noBorrowableBooks");
-              return BORROW;
-            });
+    for (String isbn : allIsbns) {
+      Set<Book> books = bookService.findBooksByIsbn(borrowFormData.getIsbn());
+      if (books.isEmpty()) {
+        result.rejectValue("isbn", "noBookExists", List.of(isbn).toArray(), "");
+      }
+    }
+
+    Set<Borrowing> borrowings = bookService.borrowBooks(allIsbns, borrowFormData.getEmail());
+
+    if (borrowings.isEmpty()) {
+      result.rejectValue("isbn", "noBorrowableBooks");
+      return BORROW;
+    } else {
+      return "home";
+    }
   }
 
   @ExceptionHandler(Exception.class)

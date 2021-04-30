@@ -1,5 +1,6 @@
 package de.codecentric.psd.worblehat.domain;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,20 @@ public class StandardBookService implements BookService {
           borrowingRepository.save(book.getBorrowing());
           return book.getBorrowing();
         });
+  }
+
+  @Override
+  public Set<Borrowing> borrowBooks(Set<String> isbns, String borrower) {
+    Set<Borrowing> borrowings = new HashSet<>();
+    for (String isbn : isbns) {
+
+      Optional<Borrowing> borrowing = borrowBook(isbn, borrower);
+      if (borrowing.isPresent()) {
+        borrowings.add(borrowing.get());
+      }
+    }
+
+    return borrowings;
   }
 
   @Override

@@ -1,5 +1,6 @@
 package de.codecentric.psd.worblehat.web.validation;
 
+import java.util.Arrays;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
@@ -12,8 +13,14 @@ public class ISBNConstraintValidator implements ConstraintValidator<ISBN, String
     // Don't validate null, empty and blank strings, since these are validated by @NotNull,
     // @NotEmpty and @NotBlank
     if (StringUtils.isNotBlank(value)) {
-      return ISBNValidator.getInstance().isValidISBN10(value);
+      return ISBNValidator.getInstance().isValidISBN10(value) || isListOfIsbns(value);
     }
     return true;
+  }
+
+  private boolean isListOfIsbns(String value) {
+    boolean b = Arrays.stream(value.split(","))
+      .allMatch(i -> ISBNValidator.getInstance().isValidISBN10(i));
+    return b;
   }
 }
